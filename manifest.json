@@ -5,5 +5,5 @@
   "display":"standalone",
   "background_color":"#07151c",
   "theme_color":"#07151c",
-  "description":"Tracker personale di entrate e spese, offline e privato."
+  "description":"Tracker personale di entrate e spese, offline e privato.","icons":[{"src":"apple-touch-icon.png","sizes":"180x180","type":"image/png","purpose":"any"}]
 }
