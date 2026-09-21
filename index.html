@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07151c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Money">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <title>Money — Personal Finance</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">✦</div>
+        <div><strong>Money</strong><span>Le tue finanze, semplici.</span></div>
+      </div>
+      <button class="icon-btn" id="exportBtn" title="Backup">↥</button>
+    </header>
+
+    <main>
+      <section id="home" class="view active">
+        <div class="greeting">
+          <div>
+            <p class="eyebrow" id="monthLabel">SETTEMBRE 2026</p>
+            <h1>Ciao<span id="userName">!</span></h1>
+          </div>
+          <button class="avatar" id="resetDemo" title="Dati demo">M</button>
+        </div>
+
+        <div class="hero-card">
+          <div class="hero-top"><span>Saldo del mese</span><span id="balanceDelta">—</span></div>
+          <div class="balance" id="balance">€ 0,00</div>
+          <div class="mini-note">Entrate − spese</div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card income"><span>↑ Entrate</span><strong id="incomeTotal">€ 0,00</strong></div>
+          <div class="stat-card expense"><span>↓ Spese</span><strong id="expenseTotal">€ 0,00</strong></div>
+        </div>
+
+        <div class="section-head"><div><span class="eyebrow">PANORAMICA</span><h2>Andamento</h2></div></div>
+        <div class="chart-card"><canvas id="balanceChart"></canvas></div>
+
+        <div class="section-head">
+          <div><span class="eyebrow">DOVE VANNO I SOLDI</span><h2>Categorie</h2></div>
+          <button class="text-btn" id="openAnalysis">Vedi tutto →</button>
+        </div>
+        <div id="categoryList" class="category-list"></div>
+
+        <button class="primary-cta" id="addFromHome"><span>＋</span> Aggiungi transazione</button>
+      </section>
+
+      <section id="transactions" class="view">
+        <div class="page-title"><div><span class="eyebrow">STORICO</span><h1>Transazioni</h1></div><button class="icon-btn" id="searchToggle">⌕</button></div>
+        <div id="searchBar" class="search-wrap hidden"><input id="searchInput" placeholder="Cerca descrizione, categoria..." autocomplete="off"></div>
+        <div class="segmented"><button class="active" data-filter="all">Tutte</button><button data-filter="expense">Spese</button><button data-filter="income">Entrate</button></div>
+        <div id="transactionList" class="transaction-list"></div>
+      </section>
+
+      <section id="analysis" class="view">
+        <div class="page-title"><div><span class="eyebrow">INSIGHT</span><h1>Analisi</h1></div></div>
+        <div class="analysis-grid">
+          <div class="analysis-card"><span>Media spesa</span><strong id="avgExpense">€ 0,00</strong><small>per transazione</small></div>
+          <div class="analysis-card"><span>Risparmio</span><strong id="savingRate">0%</strong><small>del totale entrate</small></div>
+        </div>
+        <div class="section-head"><div><span class="eyebrow">DISTRIBUZIONE</span><h2>Spese per categoria</h2></div></div>
+        <div class="donut-card"><canvas id="donutChart"></canvas><div id="donutLegend" class="donut-legend"></div></div>
+        <div class="section-head"><div><span class="eyebrow">INSIGHT AUTOMATICI</span><h2>Osservazioni</h2></div></div>
+        <div id="insights" class="insights"></div>
+      </section>
+
+      <section id="settings" class="view">
+        <div class="page-title"><div><span class="eyebrow">PERSONALIZZA</span><h1>Altro</h1></div></div>
+        <div class="settings-card">
+          <div class="setting-row"><div><strong>Nome</strong><small>Come vuoi essere salutato?</small></div><input id="nameInput" placeholder="Il tuo nome"></div>
+          <div class="setting-row"><div><strong>Valuta</strong><small>Valuta principale</small></div><span>EUR €</span></div>
+        </div>
+        <div class="settings-card">
+          <button class="setting-action" id="importBtn">↓ Importa backup JSON</button>
+          <button class="setting-action" id="exportBtn2">↑ Esporta backup JSON</button>
+          <button class="setting-action danger" id="clearBtn">Svuota tutti i dati</button>
+        </div>
+        <p class="privacy">🔒 I dati restano sul tuo dispositivo. Questa versione non invia le tue transazioni a server esterni.</p>
+      </section>
+    </main>
+
+    <button class="floating-add" id="floatingAdd">＋</button>
+
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-view="home"><span>⌂</span>Home</button>
+      <button class="nav-item" data-view="transactions"><span>▤</span>Transazioni</button>
+      <button class="nav-item" data-view="analysis"><span>◔</span>Analisi</button>
+      <button class="nav-item" data-view="settings"><span>•••</span>Altro</button>
+    </nav>
+  </div>
+
+  <div class="modal-backdrop hidden" id="modalBackdrop">
+    <div class="modal" id="transactionModal">
+      <div class="modal-head"><div><span class="eyebrow">NUOVA TRANSAZIONE</span><h2 id="modalTitle">Aggiungi</h2></div><button class="close" id="closeModal">×</button></div>
+      <div class="type-toggle"><button class="active expense-type" data-type="expense">Spesa</button><button class="income-type" data-type="income">Entrata</button></div>
+      <label>Importo<input id="amountInput" inputmode="decimal" type="number" step="0.01" placeholder="0,00"></label>
+      <label>Descrizione<input id="descriptionInput" type="text" placeholder="es. Cena da Pizzium" autocomplete="off"></label>
+      <div id="suggestion" class="ai-suggestion hidden"><div class="suggestion-icon">✦</div><div><span>CATEGORIA SUGGERITA</span><strong id="suggestedCategory">—</strong><small id="suggestedConfidence">—</small></div><button id="acceptSuggestion">✓</button></div>
+      <label>Categoria<select id="categoryInput"></select></label>
+      <label>Data<input id="dateInput" type="date"></label>
+      <label>Nota <span class="optional">(opzionale)</span><input id="noteInput" type="text" placeholder="Aggiungi una nota..."></label>
+      <button class="save-btn" id="saveBtn">Salva transazione</button>
+    </div>
+  </div>
+
+  <input type="file" id="importFile" accept=".json" hidden>
+  <script src="app.js"></script>
+</body>
+</html>
