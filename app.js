@@ -10,6 +10,7 @@ const CATEGORIES=[
 let state={transactions:[]};
 let currentType="expense";
 let currentCategory=0;
+let editingId=null;
 
 try{
   const x=JSON.parse(localStorage.getItem(KEY)||"{}");
@@ -18,6 +19,7 @@ try{
 
 const $=id=>document.getElementById(id);
 const euro=n=>new Intl.NumberFormat("it-IT",{style:"currency",currency:"EUR"}).format(Number(n)||0);
+const formatDate=d=>{if(!d)return "";const [y,m,day]=d.split("-");return day+"/"+m+"/"+y};
 
 function esc(s){
   return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
@@ -48,11 +50,12 @@ function render(){
 
   const list=[...state.transactions].sort((a,b)=>b.id-a.id).slice(0,8);
   $("transactions").innerHTML=list.length?list.map(t=>`
-    <div class="tx">
+    <button type="button" class="tx" data-id="${t.id}">
       <div class="tx-icon">${t.icon}</div>
-      <div class="tx-main"><b>${esc(t.description||t.category)}</b><small>${esc(t.category)}</small></div>
+      <div class="tx-main"><b>${esc(t.description||t.category)}</b><small>${esc(t.category)} · ${formatDate(t.date)}</small></div>
       <div class="tx-amount ${t.type}">${t.type==="income"?"+":"−"} ${euro(t.amount)}</div>
-    </div>`).join(""):'<div class="empty">Nessun movimento ancora.<br>Aggiungi il primo con il pulsante +</div>';
+    </button>`).join(""):'<div class="empty">Nessun movimento ancora.<br>Aggiungi il primo con il pulsante +</div>';
+  document.querySelectorAll(".tx[data-id]").forEach(row=>row.onclick=()=>editTransaction(Number(row.dataset.id)));
 }
 
 function renderCategoryChoices(){
@@ -71,7 +74,7 @@ function setType(type){
   $("incomeBtn").classList.toggle("selected",type==="income");
 }
 
-function openModal(){
+function openModal(transaction=null){
   $("modal").classList.remove("hidden");
   $("amount").value="";
   $("description").value="";
@@ -79,8 +82,11 @@ function openModal(){
   currentCategory=0;
   setType(currentType);
   renderCategoryChoices();
+  $("modalTitle").textContent=transaction?"Modifica movimento":"Aggiungi importo";
+  $("save").textContent=transaction?"Salva modifiche":"Salva movimento";
   setTimeout(()=>$("amount").focus(),80);
 }
+function editTransaction(id){const t=state.transactions.find(x=>x.id===id);if(t)openModal(t)}
 
 function closeModal(){ $("modal").classList.add("hidden"); }
 
@@ -100,8 +106,8 @@ function save(){
 }
 
 document.addEventListener("DOMContentLoaded",()=>{
-  $("openAdd").onclick=openModal;
-  $("close").onclick=closeModal;
+  $("openAdd").onclick=()=>openModal();
+  $("close").onclick=()=>{editingId=null;closeModal()};
   $("modal").onclick=e=>{if(e.target===$("modal"))closeModal()};
   $("expenseBtn").onclick=()=>setType("expense");
   $("incomeBtn").onclick=()=>setType("income");
