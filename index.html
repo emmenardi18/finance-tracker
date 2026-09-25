@@ -3,26 +3,92 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#08161d">
+<meta name="theme-color" content="#6d63f6">
 <title>Money</title>
-<link rel="stylesheet" href="styles.css?v=4">
+<link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
 <div class="app">
-<header class="top"><div><div class="logo">MONEY</div><div class="subtitle">Le tue finanze</div></div><button id="clearAll" class="ghost" type="button">Reset</button></header>
-<main>
-<section class="balance-card"><span>Saldo</span><strong id="balance">€ 0,00</strong><div class="balance-row"><div><small>Entrate</small><b id="income">€ 0,00</b></div><div><small>Uscite</small><b id="expense">€ 0,00</b></div></div></section>
-<section class="quick"><div class="section-title">Aggiungi movimento</div><button id="openAdd" class="add-button" type="button"><span>＋</span><div><b>Aggiungi importo</b><small>Una spesa o un'entrata</small></div></button></section>
-<section><div class="section-title">Ultimi movimenti</div><div id="transactions" class="transactions"></div></section>
-</main></div>
-<div id="modal" class="modal hidden"><div class="sheet">
-<div class="sheet-head"><h2>Nuovo movimento</h2><button id="close" class="close" type="button">×</button></div>
-<label class="field-label">Importo</label><div class="amount-wrap"><span>€</span><input id="amount" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0,00" autocomplete="off"></div>
-<label class="field-label">Tipo</label><div class="slider-box"><div class="slider-labels"><span>Uscita</span><span>Entrata</span></div><input id="typeSlider" type="range" min="0" max="1" step="1" value="0"><div id="typeValue" class="slider-value expense">Uscita</div></div>
-<label class="field-label">Categoria</label><div class="slider-box"><div class="slider-labels"><span>Svago</span><span>Viaggi</span></div><input id="categorySlider" type="range" min="0" max="4" step="1" value="0"><div id="categoryValue" class="slider-value">🎮 Svago</div></div>
-<div class="category-dots" id="categoryDots"></div>
-<input id="description" class="description" type="text" placeholder="Descrizione (opzionale)" autocomplete="off">
-<button id="save" class="save" type="button">Aggiungi</button>
-</div></div>
-<script src="app.js?v=4"></script>
-</body></html>
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">PANORAMICA</div>
+      <h1>Le tue finanze</h1>
+    </div>
+    <button id="clearAll" class="icon-btn" type="button" aria-label="Reset">⋯</button>
+  </header>
+
+  <main>
+    <section class="hero-card">
+      <div class="hero-top">
+        <span>Saldo disponibile</span>
+        <span class="month-pill">Settembre 2026</span>
+      </div>
+      <strong id="balance">€ 0,00</strong>
+      <div class="hero-stats">
+        <div><span>Entrate</span><b id="income">€ 0,00</b></div>
+        <div><span>Uscite</span><b id="expense">€ 0,00</b></div>
+      </div>
+    </section>
+
+    <section class="spending-card">
+      <div class="section-head">
+        <div><h2>Spese del mese</h2><span>Andamento</span></div>
+        <span class="trend">Questo mese</span>
+      </div>
+      <div class="chart">
+        <div class="chart-grid"><i></i><i></i><i></i></div>
+        <svg viewBox="0 0 340 100" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="area" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#7469f7" stop-opacity=".22"/>
+              <stop offset="100%" stop-color="#7469f7" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path class="area" d="M0,78 C30,76 36,48 70,52 S110,72 138,61 S177,43 202,55 S236,76 263,54 S299,58 340,20 L340,100 L0,100 Z"/>
+          <path class="line" d="M0,78 C30,76 36,48 70,52 S110,72 138,61 S177,43 202,55 S236,76 263,54 S299,58 340,20"/>
+        </svg>
+        <div class="chart-labels"><span>1 Set</span><span>8 Set</span><span>15 Set</span><span>22 Set</span><span>30 Set</span></div>
+      </div>
+    </section>
+
+    <section class="categories-section">
+      <div class="section-head simple"><h2>Categorie</h2><span id="categoryTotal">€ 0,00</span></div>
+      <div id="categoryList" class="category-list"></div>
+    </section>
+
+    <section class="latest-section">
+      <div class="section-head simple"><h2>Ultimi movimenti</h2><span>Recenti</span></div>
+      <div id="transactions" class="transactions"></div>
+    </section>
+  </main>
+</div>
+
+<button id="openAdd" class="floating-add" type="button" aria-label="Aggiungi movimento">＋</button>
+
+<div id="modal" class="modal hidden">
+  <div class="sheet">
+    <div class="sheet-head">
+      <div><span class="eyebrow">NUOVO MOVIMENTO</span><h2>Aggiungi importo</h2></div>
+      <button id="close" class="close" type="button">×</button>
+    </div>
+
+    <label class="field-label">Importo</label>
+    <div class="amount-wrap"><span>€</span><input id="amount" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0,00" autocomplete="off"></div>
+
+    <label class="field-label">Tipo</label>
+    <div class="segmented">
+      <button id="expenseBtn" type="button" class="selected">Uscita</button>
+      <button id="incomeBtn" type="button">Entrata</button>
+    </div>
+
+    <label class="field-label">Categoria</label>
+    <div id="categoryChoices" class="category-choices"></div>
+
+    <input id="description" class="description" type="text" placeholder="Descrizione (opzionale)" autocomplete="off">
+    <button id="save" class="save" type="button">Salva movimento</button>
+  </div>
+</div>
+
+<script src="app.js?v=6"></script>
+</body>
+</html>
