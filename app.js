@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   $("modal").onclick=e=>{if(e.target===$("modal"))closeModal()};
   $("expenseBtn").onclick=()=>setType("expense");
   $("incomeBtn").onclick=()=>setType("income");
-  $("save").onclick=save;
+  $("save").onclick=save;\n  $("date").addEventListener("change",()=>{});
   $("amount").addEventListener("input",e=>{e.target.value=e.target.value.replace(/[^0-9,\.]/g,"")});
   $("clearAll").onclick=()=>{
     if(confirm("Vuoi cancellare tutti i movimenti?")){
