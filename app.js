@@ -36,7 +36,7 @@ function openModal(transaction=null){
 function editTransaction(id){const t=state.transactions.find(x=>x.id===id);if(t)openModal(t)}
 function closeModal(){$("modal").classList.add("hidden")}
 async function save(){
- const raw=String($("amount").value).trim().replace(/s/g,"").replace(/./g,"").replace(",",".");const amount=Number(raw);if(!amount||amount<=0){$("amount").focus();return}
+ const raw=String($("amount").value).trim().replace(/\s/g,"").replace(/\./g,"").replace(",",".");const amount=Number(raw);if(!amount||amount<=0){$("amount").focus();return}
  const c=CATEGORIES[currentCategory],data={amount,type:currentType,category:c.name,icon:c.icon,description:$("description").value.trim()||c.name,date:$("date").value||new Date().toISOString().slice(0,10)};
  if(editingId){const index=state.transactions.findIndex(t=>t.id===editingId);if(index!==-1)state.transactions[index]={...state.transactions[index],...data}}else state.transactions.push({id:Date.now(),...data});
  await savePersistedState(state);editingId=null;closeModal();render();
