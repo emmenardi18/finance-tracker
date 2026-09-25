@@ -4,7 +4,8 @@ const CATEGORIES=[
   {name:"Spesa",icon:"🛒",color:"#f08a42"},
   {name:"Shopping",icon:"🛍️",color:"#5578e8"},
   {name:"Stipendio",icon:"💰",color:"#37b56b"},
-  {name:"Viaggi",icon:"✈️",color:"#6d63f6"}
+  {name:"Viaggi",icon:"✈️",color:"#6d63f6"},
+  {name:"Abbonamenti / Bollette",icon:"📄",color:"#7b8794"}
 ];
 let state={transactions:[]};
 let currentType="expense";
@@ -84,7 +85,8 @@ function openModal(){
 function closeModal(){ $("modal").classList.add("hidden"); }
 
 function save(){
-  const amount=Number(String($("amount").value).replace(",","."));
+  const raw=String($("amount").value).trim().replace(/\s/g,"").replace(/\./g,"").replace(",",".");
+  const amount=Number(raw);
   if(!amount||amount<=0){$("amount").focus();return}
   const c=CATEGORIES[currentCategory];
   state.transactions.push({
@@ -104,6 +106,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   $("expenseBtn").onclick=()=>setType("expense");
   $("incomeBtn").onclick=()=>setType("income");
   $("save").onclick=save;
+  $("amount").addEventListener("input",e=>{e.target.value=e.target.value.replace(/[^0-9,\.]/g,"")});
   $("clearAll").onclick=()=>{
     if(confirm("Vuoi cancellare tutti i movimenti?")){
       state={transactions:[]};
