@@ -88,11 +88,11 @@ h1{font-size:21px;line-height:1.1;margin:5px 0 0;letter-spacing:-.4px}
 .field-label{display:block;color:#858693;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.9px;margin:15px 0 7px}
 .amount-wrap{display:flex;align-items:center;background:#f7f7fa;border:1px solid #e9e9f0;border-radius:16px;padding:0 14px}
 .amount-wrap span{font-size:22px;color:var(--purple);font-weight:900}
-.amount-wrap input{width:100%;border:0;outline:0;background:transparent;color:var(--text);font-size:29px;font-weight:900;padding:12px 8px}
+.amount-wrap input{width:100%;border:0;outline:0;background:transparent;color:var(--text);font-size:29px;font-weight:900;padding:12px 8px}\n.date-wrap{display:flex;align-items:center;background:#f7f7fa;border:1px solid #e9e9f0;border-radius:14px;padding:0 13px;gap:9px}.date-wrap span{font-size:15px}.date-wrap input{width:100%;border:0;outline:0;background:transparent;color:var(--text);font-size:12px;font-weight:700;padding:13px 0}
 .segmented{display:grid;grid-template-columns:1fr 1fr;background:#f1f1f6;padding:4px;border-radius:14px}
 .segmented button{height:42px;border-radius:11px;background:transparent;color:#8b8c98;font-size:12px;font-weight:800}
 .segmented button.selected{background:#fff;color:var(--purple);box-shadow:0 3px 10px rgba(35,35,65,.08)}
-.category-choices{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.category-choices{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
 .cat-choice{min-width:0;padding:9px 3px;border-radius:13px;background:#f7f7fa;border:1px solid #ededf2;color:#777986;text-align:center}
 .cat-choice .choice-icon{display:block;font-size:17px;margin-bottom:5px}
 .cat-choice span:last-child{display:block;font-size:8px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
