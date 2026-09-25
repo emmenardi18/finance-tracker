@@ -8,7 +8,6 @@ const CATEGORIES=[
   {name:"Abbonamenti / Bollette",icon:"📄",color:"#7b8794"}
 ];
 let state={transactions:[]},currentType="expense",currentCategory=0,editingId=null;
-try{const x=JSON.parse(localStorage.getItem(KEY)||"{}");if(x&&Array.isArray(x.transactions))state=x}catch(e){}
 const $=id=>document.getElementById(id);
 const euro=n=>new Intl.NumberFormat("it-IT",{style:"currency",currency:"EUR"}).format(Number(n)||0);
 const formatDate=d=>{if(!d)return "";const [y,m,day]=d.split("-");return day+"/"+m+"/"+y};
@@ -36,16 +35,41 @@ function openModal(transaction=null){
 }
 function editTransaction(id){const t=state.transactions.find(x=>x.id===id);if(t)openModal(t)}
 function closeModal(){$("modal").classList.add("hidden")}
-function save(){
- const raw=String($("amount").value).trim().replace(/\s/g,"").replace(/\./g,"").replace(",",".");const amount=Number(raw);if(!amount||amount<=0){$("amount").focus();return}
+async function save(){
+ const raw=String($("amount").value).trim().replace(/s/g,"").replace(/./g,"").replace(",",".");const amount=Number(raw);if(!amount||amount<=0){$("amount").focus();return}
  const c=CATEGORIES[currentCategory],data={amount,type:currentType,category:c.name,icon:c.icon,description:$("description").value.trim()||c.name,date:$("date").value||new Date().toISOString().slice(0,10)};
  if(editingId){const index=state.transactions.findIndex(t=>t.id===editingId);if(index!==-1)state.transactions[index]={...state.transactions[index],...data}}else state.transactions.push({id:Date.now(),...data});
- localStorage.setItem(KEY,JSON.stringify(state));editingId=null;closeModal();render();
+ await savePersistedState(state);editingId=null;closeModal();render();
 }
-document.addEventListener("DOMContentLoaded",()=>{
- $("openAdd").onclick=()=>openModal();$("close").onclick=()=>{editingId=null;closeModal()};$("modal").onclick=e=>{if(e.target===$("modal")){editingId=null;closeModal()}};
+async function clearAll(){
+ if(confirm("Vuoi cancellare tutti i movimenti? Questa azione non può essere annullata.")){
+   state={transactions:[]};
+   await savePersistedState(state);
+   render();
+ }
+}
+document.addEventListener("DOMContentLoaded",async()=>{
+ $("openAdd").onclick=()=>openModal();
+ $("close").onclick=()=>{editingId=null;closeModal()};
+ $("modal").onclick=e=>{if(e.target===$("modal")){editingId=null;closeModal()}};
  $("expenseBtn").onclick=()=>setType("expense");$("incomeBtn").onclick=()=>setType("income");$("save").onclick=save;
  $("amount").addEventListener("input",e=>e.target.value=e.target.value.replace(/[^0-9,.]/g,""));
- $("clearAll").onclick=()=>{if(confirm("Vuoi cancellare tutti i movimenti?")){state={transactions:[]};localStorage.setItem(KEY,JSON.stringify(state));render()}};
+ $("clearAll").onclick=clearAll;
+ $("exportBackup").onclick=()=>exportMoneyBackup(state);
+ $("importBackup").onclick=()=>$("backupFile").click();
+ $("backupFile").onchange=async e=>{
+   const file=e.target.files?.[0];if(!file)return;
+   try{
+     const imported=await importMoneyBackup(file);
+     if(confirm("Importare il backup? I movimenti attuali verranno sostituiti.")){
+       state=imported;
+       await savePersistedState(state);
+       render();
+       alert("Backup importato correttamente.");
+     }
+   }catch(err){alert("Il file non è un backup Money valido.")}
+   e.target.value="";
+ };
+ state=await loadPersistedState();
  render();setType(currentType);renderCategoryChoices();
 });
