@@ -116,22 +116,58 @@
 
   <input type="file" id="importFile" accept=".json" hidden>
   <script>
-    // Fallback for cached/failed app.js: the add button must always open the form.
+    // Self-contained modal fallback. This keeps the form interactive even if app.js is delayed or fails.
     window.addEventListener("DOMContentLoaded", function () {
-      const open = function () {
-        const modal = document.getElementById("modalBackdrop");
-        if (modal) {
-          modal.classList.remove("hidden");
-          const date = document.getElementById("dateInput");
-          if (date && !date.value) date.value = new Date().toISOString().slice(0,10);
-          const amount = document.getElementById("amountInput");
-          if (amount) amount.focus();
-        }
+      const $ = id => document.getElementById(id);
+      const modal = $("modalBackdrop");
+      const open = () => {
+        modal.classList.remove("hidden");
+        $("dateInput").value = $("dateInput").value || new Date().toISOString().slice(0,10);
+        setTimeout(() => $("amountInput").focus(), 50);
       };
-      const home = document.getElementById("addFromHome");
-      const floating = document.getElementById("floatingAdd");
-      if (home) home.addEventListener("click", open);
-      if (floating) floating.addEventListener("click", open);
+      const close = () => modal.classList.add("hidden");
+
+      $("addFromHome").addEventListener("click", open);
+      $("floatingAdd").addEventListener("click", open);
+      $("closeModal").addEventListener("click", close);
+      modal.addEventListener("click", e => { if (e.target === modal) close(); });
+
+      document.querySelectorAll(".type-toggle button").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".type-toggle button").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+        });
+      });
+
+      $("acceptSuggestion").addEventListener("click", e => {
+        e.preventDefault();
+      });
+
+      $("saveBtn").addEventListener("click", e => {
+        e.preventDefault();
+        const amount = Number(String($("amountInput").value).replace(",", "."));
+        if (!amount || amount <= 0) {
+          alert("Inserisci un importo valido.");
+          $("amountInput").focus();
+          return;
+        }
+        let data = {transactions: [], name: ""};
+        try { data = JSON.parse(localStorage.getItem("money_tracker_v1") || '{"transactions":[],"name":""}'); } catch(e) {}
+        if (!Array.isArray(data.transactions)) data.transactions = [];
+        const active = document.querySelector(".type-toggle button.active");
+        data.transactions.push({
+          id: Date.now(),
+          amount: amount,
+          type: active && active.dataset.type === "income" ? "income" : "expense",
+          description: $("descriptionInput").value.trim() || $("categoryInput").value,
+          category: $("categoryInput").value || "Altro",
+          date: $("dateInput").value || new Date().toISOString().slice(0,10),
+          note: $("noteInput").value.trim()
+        });
+        localStorage.setItem("money_tracker_v1", JSON.stringify(data));
+        close();
+        location.reload();
+      });
     });
   </script>
   <script src="app.js?v=3"></script>
