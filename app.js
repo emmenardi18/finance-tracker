@@ -6,7 +6,16 @@ const CATEGORIES = [
 ];
 const CAT = Object.fromEntries(CATEGORIES.map(x=>[x[1],x[0]]));
 const KEY="money_tracker_v1";
-let state = JSON.parse(localStorage.getItem(KEY)||"null") || {transactions:[],name:""};
+let state = {transactions:[],name:""};
+try {
+  const raw = localStorage.getItem(KEY);
+  if (raw) {
+    const parsed = JSON.parse(raw);
+    if (parsed && Array.isArray(parsed.transactions)) state = parsed;
+  }
+} catch (e) {
+  localStorage.removeItem(KEY);
+}
 let currentType="expense", editingId=null, currentFilter="all";
 
 const $=id=>document.getElementById(id);
@@ -42,7 +51,10 @@ function suggestCategory(text,type){
 }
 
 function renderAll(){renderHome();renderTransactions();renderAnalysis();$("monthLabel").textContent=monthName();$("userName").textContent=state.name?`, ${escapeHTML(state.name)}`:"!";$("nameInput").value=state.name||""}
-function monthTx(){const ym=dateISO().slice(0,7);return state.transactions.filter(t=>t.date.startsWith(ym))}
+function monthTx(){
+  const ym=dateISO().slice(0,7);
+  return state.transactions.filter(t=>t && typeof t.date==="string" && t.date.startsWith(ym));
+}
 function renderHome(){
   const tx=monthTx(), income=tx.filter(t=>t.type==="income").reduce((s,t)=>s+t.amount,0), expense=tx.filter(t=>t.type==="expense").reduce((s,t)=>s+t.amount,0);
   $("incomeTotal").textContent=euro(income);$("expenseTotal").textContent=euro(expense);$("balance").textContent=euro(income-expense);
@@ -67,12 +79,12 @@ function drawBalanceChart(tx){
   const x=W-pad,y=H-pad-(points.at(-1)-min)/range*(H-pad*2);ctx.fillStyle="#61e4c0";ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();
 }
 function renderTransactions(){
-  let list=[...state.transactions].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+  let list=state.transactions.filter(t=>t && typeof t.date==="string").sort((a,b)=>b.date.localeCompare(a.date)||(Number(b.id)||0)-(Number(a.id)||0));
   if(currentFilter!=="all")list=list.filter(t=>t.type===currentFilter);
   const q=($("searchInput")?.value||"").toLowerCase();if(q)list=list.filter(t=>`${t.description} ${t.category} ${t.note||""}`.toLowerCase().includes(q));
   const el=$("transactionList");if(!list.length){el.innerHTML=`<div class="empty"><b>Nessuna transazione</b>Prova ad aggiungerne una con il pulsante +.</div>`;return}
   let last="";el.innerHTML=list.map(t=>{let head="";if(t.date!==last){last=t.date;head=`<div class="tx-group">${fmtDate(t.date).toUpperCase()}</div>`}return head+`<div class="tx-row" data-id="${t.id}"><div class="tx-icon">${CAT[t.category]||"📦"}</div><div class="tx-main"><strong>${escapeHTML(t.description||t.category)}</strong><small>${escapeHTML(t.category)}${t.note?" · "+escapeHTML(t.note):""}</small></div><div class="tx-amount ${t.type}">${t.type==="income"?"+":"-"}${euro(t.amount)}</div></div>`}).join("");
-  el.querySelectorAll(".tx-row").forEach(r=>r.onclick=()=>openEdit(Number(r.dataset.id)));
+  el.querySelectorAll(".tx-row").forEach(r=>r.onclick=()=>openModal(Number(r.dataset.id)));
 }
 function renderAnalysis(){
   const tx=monthTx(), ex=tx.filter(t=>t.type==="expense"), total=ex.reduce((s,t)=>s+t.amount,0),inc=tx.filter(t=>t.type==="income").reduce((s,t)=>s+t.amount,0);
@@ -119,7 +131,6 @@ function importData(file){const r=new FileReader();r.onload=()=>{try{const d=JSO
 function openView(name){document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===name));document.querySelectorAll(".nav-item").forEach(b=>b.classList.toggle("active",b.dataset.view===name));window.scrollTo({top:0,behavior:"smooth"})}
 
 document.addEventListener("DOMContentLoaded",()=>{
-  populateCategories();renderAll();
   document.querySelectorAll(".nav-item").forEach(b=>b.onclick=()=>openView(b.dataset.view));
   $("addFromHome").onclick=$("floatingAdd").onclick=()=>openModal();
   $("closeModal").onclick=closeModal;$("modalBackdrop").onclick=e=>{if(e.target.id==="modalBackdrop")closeModal()};
@@ -134,6 +145,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   $("exportBtn").onclick=$("exportBtn2").onclick=exportData;
   $("importBtn").onclick=()=>$("importFile").click();$("importFile").onchange=e=>e.target.files[0]&&importData(e.target.files[0]);
   $("nameInput").onchange=e=>{state.name=e.target.value.trim();saveState()};
+  try { populateCategories(); renderAll(); } catch (e) { console.error("Render error:", e); }
   $("clearBtn").onclick=()=>{if(confirm("Vuoi cancellare tutte le transazioni? Questa azione non può essere annullata.")){state.transactions=[];saveState()}};
   $("resetDemo").onclick=()=>{if(!state.transactions.length){state.transactions=[
     {id:1,type:"income",amount:1960,description:"Stipendio",category:"Stipendio",date:dateISO(),note:""},
