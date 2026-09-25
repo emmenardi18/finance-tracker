@@ -1,175 +1,28 @@
 <!doctype html>
 <html lang="it">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#07151c">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Money">
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-  <title>Money — Personal Finance</title>
-  <link rel="stylesheet" href="styles.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08161d">
+<title>Money</title>
+<link rel="stylesheet" href="styles.css?v=4">
 </head>
 <body>
-  <div class="app-shell">
-    <header class="topbar">
-      <div class="brand">
-        <div class="brand-mark">✦</div>
-        <div><strong>Money</strong><span>Le tue finanze, semplici.</span></div>
-      </div>
-      <button class="icon-btn" id="exportBtn" title="Backup">↥</button>
-    </header>
-
-    <main>
-      <section id="home" class="view active">
-        <div class="greeting">
-          <div>
-            <p class="eyebrow" id="monthLabel">SETTEMBRE 2026</p>
-            <h1>Ciao<span id="userName">!</span></h1>
-          </div>
-          <button class="avatar" id="resetDemo" title="Dati demo">M</button>
-        </div>
-
-        <div class="hero-card">
-          <div class="hero-top"><span>Saldo del mese</span><span id="balanceDelta">—</span></div>
-          <div class="balance" id="balance">€ 0,00</div>
-          <div class="mini-note">Entrate − spese</div>
-        </div>
-
-        <div class="stat-grid">
-          <div class="stat-card income"><span>↑ Entrate</span><strong id="incomeTotal">€ 0,00</strong></div>
-          <div class="stat-card expense"><span>↓ Spese</span><strong id="expenseTotal">€ 0,00</strong></div>
-        </div>
-
-        <div class="section-head"><div><span class="eyebrow">PANORAMICA</span><h2>Andamento</h2></div></div>
-        <div class="chart-card"><canvas id="balanceChart"></canvas></div>
-
-        <div class="section-head">
-          <div><span class="eyebrow">DOVE VANNO I SOLDI</span><h2>Categorie</h2></div>
-          <button class="text-btn" id="openAnalysis">Vedi tutto →</button>
-        </div>
-        <div id="categoryList" class="category-list"></div>
-
-        <button class="primary-cta" id="addFromHome" type="button"><span>＋</span> Aggiungi transazione</button>
-      </section>
-
-      <section id="transactions" class="view">
-        <div class="page-title"><div><span class="eyebrow">STORICO</span><h1>Transazioni</h1></div><button class="icon-btn" id="searchToggle">⌕</button></div>
-        <div id="searchBar" class="search-wrap hidden"><input id="searchInput" placeholder="Cerca descrizione, categoria..." autocomplete="off"></div>
-        <div class="segmented"><button class="active" data-filter="all">Tutte</button><button data-filter="expense">Spese</button><button data-filter="income">Entrate</button></div>
-        <div id="transactionList" class="transaction-list"></div>
-      </section>
-
-      <section id="analysis" class="view">
-        <div class="page-title"><div><span class="eyebrow">INSIGHT</span><h1>Analisi</h1></div></div>
-        <div class="analysis-grid">
-          <div class="analysis-card"><span>Media spesa</span><strong id="avgExpense">€ 0,00</strong><small>per transazione</small></div>
-          <div class="analysis-card"><span>Risparmio</span><strong id="savingRate">0%</strong><small>del totale entrate</small></div>
-        </div>
-        <div class="section-head"><div><span class="eyebrow">DISTRIBUZIONE</span><h2>Spese per categoria</h2></div></div>
-        <div class="donut-card"><canvas id="donutChart"></canvas><div id="donutLegend" class="donut-legend"></div></div>
-        <div class="section-head"><div><span class="eyebrow">INSIGHT AUTOMATICI</span><h2>Osservazioni</h2></div></div>
-        <div id="insights" class="insights"></div>
-      </section>
-
-      <section id="settings" class="view">
-        <div class="page-title"><div><span class="eyebrow">PERSONALIZZA</span><h1>Altro</h1></div></div>
-        <div class="settings-card">
-          <div class="setting-row"><div><strong>Nome</strong><small>Come vuoi essere salutato?</small></div><input id="nameInput" placeholder="Il tuo nome"></div>
-          <div class="setting-row"><div><strong>Valuta</strong><small>Valuta principale</small></div><span>EUR €</span></div>
-        </div>
-        <div class="settings-card">
-          <button class="setting-action" id="importBtn">↓ Importa backup JSON</button>
-          <button class="setting-action" id="exportBtn2">↑ Esporta backup JSON</button>
-          <button class="setting-action danger" id="clearBtn">Svuota tutti i dati</button>
-        </div>
-        <p class="privacy">🔒 I dati restano sul tuo dispositivo. Questa versione non invia le tue transazioni a server esterni.</p>
-      </section>
-    </main>
-
-    <button class="floating-add" id="floatingAdd" type="button">＋</button>
-
-    <nav class="bottom-nav">
-      <button class="nav-item active" data-view="home"><span>⌂</span>Home</button>
-      <button class="nav-item" data-view="transactions"><span>▤</span>Transazioni</button>
-      <button class="nav-item" data-view="analysis"><span>◔</span>Analisi</button>
-      <button class="nav-item" data-view="settings"><span>•••</span>Altro</button>
-    </nav>
-  </div>
-
-  <div class="modal-backdrop hidden" id="modalBackdrop">
-    <div class="modal" id="transactionModal">
-      <div class="modal-head"><div><span class="eyebrow">NUOVA TRANSAZIONE</span><h2 id="modalTitle">Aggiungi</h2></div><button class="close" id="closeModal">×</button></div>
-      <div class="type-toggle"><button class="active expense-type" data-type="expense">Spesa</button><button class="income-type" data-type="income">Entrata</button></div>
-      <label>Importo<input id="amountInput" inputmode="decimal" type="number" step="0.01" placeholder="0,00"></label>
-      <label>Descrizione<input id="descriptionInput" type="text" placeholder="es. Cena da Pizzium" autocomplete="off"></label>
-      <div id="suggestion" class="ai-suggestion hidden"><div class="suggestion-icon">✦</div><div><span>CATEGORIA SUGGERITA</span><strong id="suggestedCategory">—</strong><small id="suggestedConfidence">—</small></div><button id="acceptSuggestion">✓</button></div>
-      <label>Categoria<select id="categoryInput"></select></label>
-      <label>Data<input id="dateInput" type="date"></label>
-      <label>Nota <span class="optional">(opzionale)</span><input id="noteInput" type="text" placeholder="Aggiungi una nota..."></label>
-      <button class="save-btn" id="saveBtn">Salva transazione</button>
-    </div>
-  </div>
-
-  <input type="file" id="importFile" accept=".json" hidden>
-  <script>
-    // Self-contained modal fallback. This keeps the form interactive even if app.js is delayed or fails.
-    window.addEventListener("DOMContentLoaded", function () {
-      const $ = id => document.getElementById(id);
-      const modal = $("modalBackdrop");
-      const open = () => {
-        modal.classList.remove("hidden");
-        $("dateInput").value = $("dateInput").value || new Date().toISOString().slice(0,10);
-        setTimeout(() => $("amountInput").focus(), 50);
-      };
-      const close = () => modal.classList.add("hidden");
-
-      $("addFromHome").addEventListener("click", open);
-      $("floatingAdd").addEventListener("click", open);
-      $("closeModal").addEventListener("click", close);
-      modal.addEventListener("click", e => { if (e.target === modal) close(); });
-
-      document.querySelectorAll(".type-toggle button").forEach(btn => {
-        btn.addEventListener("click", () => {
-          document.querySelectorAll(".type-toggle button").forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-        });
-      });
-
-      $("acceptSuggestion").addEventListener("click", e => {
-        e.preventDefault();
-      });
-
-      $("saveBtn").addEventListener("click", e => {
-        e.preventDefault();
-        const amount = Number(String($("amountInput").value).replace(",", "."));
-        if (!amount || amount <= 0) {
-          alert("Inserisci un importo valido.");
-          $("amountInput").focus();
-          return;
-        }
-        let data = {transactions: [], name: ""};
-        try { data = JSON.parse(localStorage.getItem("money_tracker_v1") || '{"transactions":[],"name":""}'); } catch(e) {}
-        if (!Array.isArray(data.transactions)) data.transactions = [];
-        const active = document.querySelector(".type-toggle button.active");
-        data.transactions.push({
-          id: Date.now(),
-          amount: amount,
-          type: active && active.dataset.type === "income" ? "income" : "expense",
-          description: $("descriptionInput").value.trim() || $("categoryInput").value,
-          category: $("categoryInput").value || "Altro",
-          date: $("dateInput").value || new Date().toISOString().slice(0,10),
-          note: $("noteInput").value.trim()
-        });
-        localStorage.setItem("money_tracker_v1", JSON.stringify(data));
-        close();
-        location.reload();
-      });
-    });
-  </script>
-  <script src="app.js?v=3"></script>
-</body>
-</html>
+<div class="app">
+<header class="top"><div><div class="logo">MONEY</div><div class="subtitle">Le tue finanze</div></div><button id="clearAll" class="ghost" type="button">Reset</button></header>
+<main>
+<section class="balance-card"><span>Saldo</span><strong id="balance">€ 0,00</strong><div class="balance-row"><div><small>Entrate</small><b id="income">€ 0,00</b></div><div><small>Uscite</small><b id="expense">€ 0,00</b></div></div></section>
+<section class="quick"><div class="section-title">Aggiungi movimento</div><button id="openAdd" class="add-button" type="button"><span>＋</span><div><b>Aggiungi importo</b><small>Una spesa o un'entrata</small></div></button></section>
+<section><div class="section-title">Ultimi movimenti</div><div id="transactions" class="transactions"></div></section>
+</main></div>
+<div id="modal" class="modal hidden"><div class="sheet">
+<div class="sheet-head"><h2>Nuovo movimento</h2><button id="close" class="close" type="button">×</button></div>
+<label class="field-label">Importo</label><div class="amount-wrap"><span>€</span><input id="amount" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0,00" autocomplete="off"></div>
+<label class="field-label">Tipo</label><div class="slider-box"><div class="slider-labels"><span>Uscita</span><span>Entrata</span></div><input id="typeSlider" type="range" min="0" max="1" step="1" value="0"><div id="typeValue" class="slider-value expense">Uscita</div></div>
+<label class="field-label">Categoria</label><div class="slider-box"><div class="slider-labels"><span>Svago</span><span>Viaggi</span></div><input id="categorySlider" type="range" min="0" max="4" step="1" value="0"><div id="categoryValue" class="slider-value">🎮 Svago</div></div>
+<div class="category-dots" id="categoryDots"></div>
+<input id="description" class="description" type="text" placeholder="Descrizione (opzionale)" autocomplete="off">
+<button id="save" class="save" type="button">Aggiungi</button>
+</div></div>
+<script src="app.js?v=4"></script>
+</body></html>
