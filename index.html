@@ -53,7 +53,7 @@
         </div>
         <div id="categoryList" class="category-list"></div>
 
-        <button class="primary-cta" id="addFromHome"><span>＋</span> Aggiungi transazione</button>
+        <button class="primary-cta" id="addFromHome" type="button"><span>＋</span> Aggiungi transazione</button>
       </section>
 
       <section id="transactions" class="view">
@@ -90,7 +90,7 @@
       </section>
     </main>
 
-    <button class="floating-add" id="floatingAdd">＋</button>
+    <button class="floating-add" id="floatingAdd" type="button">＋</button>
 
     <nav class="bottom-nav">
       <button class="nav-item active" data-view="home"><span>⌂</span>Home</button>
@@ -115,6 +115,25 @@
   </div>
 
   <input type="file" id="importFile" accept=".json" hidden>
+  <script>
+    // Fallback for cached/failed app.js: the add button must always open the form.
+    window.addEventListener("DOMContentLoaded", function () {
+      const open = function () {
+        const modal = document.getElementById("modalBackdrop");
+        if (modal) {
+          modal.classList.remove("hidden");
+          const date = document.getElementById("dateInput");
+          if (date && !date.value) date.value = new Date().toISOString().slice(0,10);
+          const amount = document.getElementById("amountInput");
+          if (amount) amount.focus();
+        }
+      };
+      const home = document.getElementById("addFromHome");
+      const floating = document.getElementById("floatingAdd");
+      if (home) home.addEventListener("click", open);
+      if (floating) floating.addEventListener("click", open);
+    });
+  </script>
   <script src="app.js?v=3"></script>
 </body>
 </html>
